@@ -26,6 +26,8 @@ var header = map[string]string{
 var downloadPrev = "https://res.wx.qq.com/voice/getvoice?mediaid="
 var downloadDir = "media"
 
+var urlMap = make(map[string]bool) // New empty set
+
 func determineEncodings(r io.Reader) []byte {
 	OldReader := bufio.NewReader(r)
 	bytes, err := OldReader.Peek(1024)
@@ -81,17 +83,18 @@ func getUrls() []string {
 
 	var urls []string
 	for i := 0; i < len(find_txt); i++ {
-		if strings.Contains(find_txt[i][1], "mp.weixin.qq.com") {
-			urls = append(urls, find_txt[i][1])
+		url := find_txt[i][1]
+		if strings.Contains(url, "mp.weixin.qq.com") {
+			if _, ok := urlMap[url]; !ok {
+				urls = append(urls, url)
+				urlMap[url] = true
+			}
 		}
 	}
 
 	return urls
 }
 
-/**
- * download file from `url`, then write the content to `to`
- */
 func download(url string, to string) error {
 	resp, err := http.Get(url)
 	if err != nil {
@@ -127,13 +130,12 @@ func downloadAudio(url string) {
 	rp2 := regexp.MustCompile(pattern2)
 	find_txt2 := rp2.FindAllStringSubmatch(html, -1)
 
-	for i := 0; i < len(find_txt1); i++ {
-		fullUrl := downloadPrev + find_txt1[i][1]
-		fileName := find_txt0[i][0] + "." + find_txt2[i][1] + ".mp3"
-		fmt.Println(fullUrl, fileName)
+	if len(find_txt0) > 0 && len(find_txt1) > 0 && len(find_txt2) > 0 {
+		fullUrl := downloadPrev + find_txt1[0][1]
+		fileName := find_txt0[0][0] + "." + find_txt2[0][1] + ".mp3"
+		fmt.Println(url, fullUrl, fileName)
 		download(fullUrl, fileName)
 	}
-
 }
 
 func main() {
