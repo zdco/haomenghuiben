@@ -88,6 +88,8 @@ func getUrls() []string {
 			if _, ok := urlMap[url]; !ok {
 				urls = append(urls, url)
 				urlMap[url] = true
+			} else {
+				fmt.Printf("===== Duplicate data:%d =====\n", i)
 			}
 		}
 	}
@@ -116,7 +118,7 @@ func downloadAudio(url string) {
 	html := spider.get_html_header()
 
 	//ID
-	pattern0 := `第(.*?)晚`
+	pattern0 := `第(.*?)晚|第(.*?)：`
 	rp0 := regexp.MustCompile(pattern0)
 	find_txt0 := rp0.FindAllStringSubmatch(html, -1)
 
@@ -126,7 +128,7 @@ func downloadAudio(url string) {
 	find_txt1 := rp1.FindAllStringSubmatch(html, -1)
 
 	//名称
-	pattern2 := `<mpvoice .*name="(.*?)"`
+	pattern2 := `<mpvoice.* name="(.*?)"`
 	rp2 := regexp.MustCompile(pattern2)
 	find_txt2 := rp2.FindAllStringSubmatch(html, -1)
 
