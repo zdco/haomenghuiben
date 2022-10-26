@@ -81,15 +81,17 @@ func getUrls() []string {
 	rp := regexp.MustCompile(pattern)
 	find_txt := rp.FindAllStringSubmatch(html, -1)
 
+	urlIndex := 0
 	var urls []string
 	for i := 0; i < len(find_txt); i++ {
 		url := find_txt[i][1]
 		if strings.Contains(url, "mp.weixin.qq.com") {
+			urlIndex++
 			if _, ok := urlMap[url]; !ok {
 				urls = append(urls, url)
 				urlMap[url] = true
 			} else {
-				fmt.Printf("===== Duplicate data:%d =====\n", i)
+				fmt.Printf("===== Duplicate data:%d =====\n", urlIndex)
 			}
 		}
 	}
